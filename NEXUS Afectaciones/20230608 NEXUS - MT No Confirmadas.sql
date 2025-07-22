@@ -1,0 +1,30 @@
+SELECT 
+  ARO.DOCUMENT_ID, 
+  TRIM(SUBSTR(L.LINKVALUE,1,INSTR(L.LINKVALUE,'-')-1)) CT, 
+  (select count(1) from NEXUS_CCYB.CLIENTES_CCYB where ct=trim(substr(l.linkvalue,1,instr(L.LINKVALUE,'-')-1))) clientes
+FROM 
+  NEXUS_GIS.OMS_AFFECT_RESTORE_OPERATION ARO, 
+  NEXUS_GIS.OMS_AFFECTED_ELEMENT AE, 
+  NEXUS_GIS.SPROBJECTS O,
+  NEXUS_GIS.SPRLINKS L
+WHERE
+  ARO.ID=AE.AFFECT_ID
+  AND AE.ELEMENT_ID=O.OBJECTNAMEID
+  AND O.OBJECTID=L.OBJECTID
+  and ARO.DOCUMENT_ID in (SELECT 
+                  doc.id
+                FROM 
+                  NEXUS_GIS.IDMS_DOCUMENTO_INFO IDOC, 
+                  NEXUS_GIS.OMS_DOCUMENT doc
+                WHERE 
+                  IDOC.ID_DOCUMENTO = DOC.ID
+                --  AND DOC.ID =10522011
+                  AND SUBSTR(DOC.NAME,1,7)='D-22-09'
+                  AND DOC.TYPE_ID IN (3,4)
+                  AND IDOC.EVENTO_CONFIRMADO<>1)
+  AND L.LOGIDTO=0
+  AND L.LINKID=1018
+  AND ARO.IS_RESTORE=0
+  AND ARO.OPERATION_ID IS NOT NULL
+  
+;  
